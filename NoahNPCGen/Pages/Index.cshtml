@@ -12,25 +12,28 @@
     <p class="lead">Choose the type of person you want, and we'll give them to you!</p>
 </div>
 
-@{
-    WebRequest request = WebRequest.Create("https://www.dnd5eapi.co/api/races/");
-    request.Method = "GET";
-    using var webStream = request.GetResponse().GetResponseStream();
+@functions{
+    private static Dictionary<string, dynamic> LoadAPI(string url)
+    {
+        WebRequest request = WebRequest.Create("https://www.dnd5eapi.co/api/" + url);
+        request.Method = "GET";
+        using var webStream = request.GetResponse().GetResponseStream();
 
-    using var reader = new StreamReader(webStream);
-    var data = reader.ReadToEnd();
-    var races = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data);
+        using var reader = new StreamReader(webStream);
+        var data = reader.ReadToEnd();
+        return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data);
+    }
 }
 
 
 
+<!--Dropdowns allowing for user to customize the character geenrator utilizing D&D 5e API-->
 <div class="container-fluid">
     <div class="row">
         <div class="col-3">
-            <!--Each dropdown will choose from a list imported from an api-->
             <p>Select the character's Race:</p>
             <select id="SelectRace">
-                @foreach (var race in races["results"])
+                @foreach (var race in LoadAPI("races")["results"])
                 {
                     <option>@race["name"]</option>
                 }
@@ -39,39 +42,59 @@
 
         <div class="col-3">
             <p>Select the character's class:</p>
-            <select id="SelectRace">
-                <option>Artificer</option>
-                <option>Barbarian</option>
-                <option>Bard</option>
-                <option>None</option>
+            <select id="SelectClass">
+                @foreach (var dndClass in LoadAPI("classes")["results"])
+                {
+                    <option>@dndClass["name"]</option>
+                }
             </select>
         </div>
 
         <div class="col-3">
             <p>Select the character's subclass:</p>
-            <select id="SelectRace">
-                <option>Artificer</option>
-                <option>Barbarian</option>
-                <option>Bard</option>
+            <select id="SelectSubClass">
+                @foreach (var subClass in LoadAPI("subclasses")["results"])
+                {
+                    <option>@subClass["name"]</option>
+                }
             </select>
         </div>
 
         <div class="col-3">
-            <p>Select the NPC's Level:</p>
-            <select id="SelectRace">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
+            <p>Select the Character's Level:</p>
+            <select id="SelectLevel">
+                @for (int i = 1; i <= 20; i++)
+                {
+                    <option>@i</option>
+                }
             </select>
         </div>
 
         <div class="col-3">
-            <p>Select your setting:</p>
-            <select id="SelectSetting">
-                <option>Forgotten Realms</option>
-                <option>Wildemount</option>
-                <option>Eberron</option>
+            <p>Select the Character's background:</p>
+            <select id="SelectBackG">
+                @foreach (var backG in LoadAPI("backgrounds")["results"])
+                {
+                    <option>@backG["name"]</option>
+                }
             </select>
+        </div>
+
+        <div class="row">
+            <div class="col-3">
+                <p>Select the Character's Allignment:</p>
+                <select id="SelectRace">
+                    <option>Lawful-Good</option>
+                    <option>Neutral-Good</option>
+                    <option>Chaotic-Good</option>
+                    <option>Lawful-Neutral</option>
+                    <option>True Neutral</option>
+                    <option>Chaotic Neutral</option>
+                    <option>Lawful-Evil</option>
+                    <option>Neutral-Evil</option>
+                    <option>Chaotic-Evil</option>
+                </select>
+            </div>
         </div>
     </div>
 </div>
