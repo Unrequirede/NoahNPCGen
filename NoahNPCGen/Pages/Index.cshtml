@@ -1,0 +1,79 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+@using System.IO;
+@using System.Net;
+@using Newtonsoft.Json;
+
+<div>
+    <h1>Noah's 5e Character Generator</h1>
+    <p class="lead">Choose the type of person you want, and we'll give them to you!</p>
+</div>
+
+@{
+    WebRequest request = WebRequest.Create("https://www.dnd5eapi.co/api/races/");
+    request.Method = "GET";
+    using var webStream = request.GetResponse().GetResponseStream();
+
+    using var reader = new StreamReader(webStream);
+    var data = reader.ReadToEnd();
+    var races = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data);
+}
+
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <!--Each dropdown will choose from a list imported from an api-->
+            <p>Select the character's Race:</p>
+            <select id="SelectRace">
+                @foreach (var race in races["results"])
+                {
+                    <option>@race["name"]</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-3">
+            <p>Select the character's class:</p>
+            <select id="SelectRace">
+                <option>Artificer</option>
+                <option>Barbarian</option>
+                <option>Bard</option>
+                <option>None</option>
+            </select>
+        </div>
+
+        <div class="col-3">
+            <p>Select the character's subclass:</p>
+            <select id="SelectRace">
+                <option>Artificer</option>
+                <option>Barbarian</option>
+                <option>Bard</option>
+            </select>
+        </div>
+
+        <div class="col-3">
+            <p>Select the NPC's Level:</p>
+            <select id="SelectRace">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+            </select>
+        </div>
+
+        <div class="col-3">
+            <p>Select your setting:</p>
+            <select id="SelectSetting">
+                <option>Forgotten Realms</option>
+                <option>Wildemount</option>
+                <option>Eberron</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<input id="submit" type="button" value="Create Character" />
