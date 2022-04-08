@@ -1,0 +1,71 @@
+﻿@page
+@model NoahNPCGen.Pages.CharacterModel
+@{
+
+}
+
+
+<div class="row">
+    <div class="col-sm-4">
+        <div class="row">
+            <input id="NameBox" value="@Model.displayName" />
+        </div>
+        <div class="row">
+            <label for="NameBox">Character Name</label>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <input id="ClassBox" value="@Model.displayClass @Model.displayLevel" />
+                </div>
+                <div>
+                    <label for="ClassBox">Class & Level</label>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <input id="BackGBox" value="@Model.displayBackG" />
+                </div>
+                <div class="row">
+                    <label for="BackGBox">Background</label>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <input id="PlayerBox" value="@Model.displaySubClass" />
+                </div>
+                <div class="row">
+                    <label for="PlayerBox">Player Name</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <input id="RaceBox" value="@Model.displayRace" />
+                </div>
+                <div class="row">
+                    <label for="RaceBox">Race</label>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <input id="AlignmentBox" value="@Model.displayAlignment" />
+                </div>
+                <div class="row">
+                    <label for="AlignmentBox">Alignment</label>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <input id="ExperienceBox" value="@Model.displayExp" />
+                </div>
+                <div class="row">
+                    <label for="ExperienceBox">Experience Points</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

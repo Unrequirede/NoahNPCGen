@@ -70,3 +70,5 @@ C:\Users\apple\source\repos\NoahNPCGen\NoahNPCGen\obj\Debug\netcoreapp3.1\NoahNP
 C:\Users\apple\source\repos\NoahNPCGen\NoahNPCGen\obj\Debug\netcoreapp3.1\NoahNPCGen.pdb
 C:\Users\apple\source\repos\NoahNPCGen\NoahNPCGen\obj\Debug\netcoreapp3.1\NoahNPCGen.genruntimeconfig.cache
 C:\Users\apple\source\repos\NoahNPCGen\NoahNPCGen\obj\Debug\netcoreapp3.1\NoahNPCGen.csproj.AssemblyReference.cache
+C:\Users\apple\source\repos\NoahNPCGen\NoahNPCGen\obj\Debug\netcoreapp3.1\Razor\Pages\Character.cshtml.g.cs
+C:\Users\apple\source\repos\NoahNPCGen\NoahNPCGen\obj\Debug\netcoreapp3.1\Razor\Pages\Test.cshtml.g.cs
