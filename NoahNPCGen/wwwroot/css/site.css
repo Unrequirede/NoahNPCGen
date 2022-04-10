@@ -51,6 +51,12 @@ button.accept-policy {
   line-height: inherit;
 }
 
+/*Character page styles*/
+.modifier {
+    width: 30px;
+    display: inline;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
