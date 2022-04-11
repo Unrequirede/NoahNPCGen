@@ -353,7 +353,7 @@
                         </div>
                     </div>
                 </div>
-                <p stlye="margin:auto;"><b>Skills/b></p>
+                <p stlye="margin:auto;"><b>Skills</b></p>
             </div>
         </div>
         <div class="row bg-light">
@@ -364,5 +364,93 @@
             <textarea id="OtherProf" rows="4" cols="40" style="margin:auto;">@Model.DisplayOtherProf()</textarea>
         </div>
         <p stlye="margin:auto;"><b>Other Proficiencies and Langauges</b></p>
+    </div>
+
+    <div class="col-sm-4 bg-light">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="border" id="ACSco">
+                    <input class="form-control ability" id="ACSco" value="@Model.displayDexMod" />
+                    <label for="ACSco">Armor Class</label>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="border" id="InitSco">
+                    <input class="form-control ability" id="InitSco" value="@Model.displayDexMod" />
+                    <label for="InitSco">Initiative</label>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="border" id="SpeedSco">
+                    <input class="form-control ability" id="ACSco" value="30ft" />
+                    <label for="ACSco">Speed</label>
+                </div>
+            </div>
+        </div>
+        <div class="border">
+            <div class="row p-0 mx-auto">
+                <p>Hit point maximum:</p><input value="@Model.displayHP"/>
+            </div>
+            <div class="row p-0 mx-auto mb-0">
+                <input class=" w-100" style="font-size: 3em;" value="@Model.displayHP"/>
+            </div>
+            <div class="row mx-auto">
+                <p class="mb-0"><b>Current hit points</b></p>
+            </div>
+        </div>
+        <div class="border mx-auto">
+            <div class="row p-0 mx-auto mb-0">
+                <input class="w-100" style="font-size: 3em;" />
+            </div>
+            <div class="row mx-auto">
+                <p class="mb-0"><b>Temporary hit points</b></p>
+            </div>
+        </div>
+        <div class="row mx-auto">
+            <div class="col-sm-6 border">
+                <div class="row mx-auto">
+                    <p>Total: @Model.displayLevel</p>
+                </div>
+                <div class="row mx-auto">
+                    <p>d</p><p>@Model.displayHitDice</p>
+                </div>
+                <div class="row mx-auto">
+                    <p><b>Hit Dice</b></p>
+                </div>
+            </div>
+            <div class="col-sm-6 border">
+                <div>
+                    <p class="d-inline">Successes</p>
+                    <input id="Succ1" type="checkbox" />
+                    <input id="Succ2" type="checkbox" />
+                    <input id="Succ3" type="checkbox" />
+                </div>
+                <div>
+                    <p class="d-inline">Failures</p>
+                    <input id="Fail1" type="checkbox" />
+                    <input id="Fail2" type="checkbox" />
+                    <input id="Fail3" type="checkbox" />
+                </div>
+                <div class="row mx-auto">
+                    <p><b>Death Saves</b></p>
+                </div>
+            </div>
+        </div>
+        <div class="row mx-auto border">
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>ATK Bonus</th>
+                    <th>Damage/Type</th>
+                </tr>
+
+            </table>
+            <div class="row mx-auto">
+                <p><b>Attacks & Spellcasting</b></p>
+            </div>
+        </div>
+        <div class="row mx-auto border">
+            <textarea id="AllEquiptment" rows="8" cols="40" style="margin:auto;">@Model.AllItems()</textarea>
+        </div>
     </div>
 </div>

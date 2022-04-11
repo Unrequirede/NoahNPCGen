@@ -14,9 +14,10 @@ namespace NoahNPCGen.Pages
     {
         public static Random rnd = new Random();
         public string displayName = "", displayRace = "", displayClass = "", displaySubClass = "", displayBackG = "", displayAlignment = "";
-        public int displayLevel = -1, displayExp = -1, displayStr = -1, displayDex = -1, displayCon = -1, displayInt = -1, displayWis = -1, displayCha = -1, displayStrMod = -1, displayDexMod = -1, displayConMod = -1, displayIntMod = -1, displayWisMod = -1, displayChaMod = -1, displayProf = -1;
+        public int displayLevel = -1, displayExp = -1, displayStr = -1, displayDex = -1, displayCon = -1, displayInt = -1, displayWis = -1, displayCha = -1, displayStrMod = -1, displayDexMod = -1, displayConMod = -1, displayIntMod = -1, displayWisMod = -1, displayChaMod = -1, displayProf = -1, displayHitDice = -1, displayHP = -1;
         public string strSav, dexSav, conSav, intSav, wisSav, chaSav, acroPro, animPro, arcaPro, athlPro, decePro, histPro, insiPro, intiPro, invePro, mediPro, natuPro, percPro, perfPro, persPro, reliPro, sleiPro, steaPro, survPro;
         public List<string> otherProf = new List<string>();
+        public List<string> itemSelect = new List<string>();
 
         public void OnGetSingleOrder(string charName, string charRace, string charClass, string charSubClass, int charLevel, string charBackG, string CharAlignment)
         {
@@ -27,11 +28,108 @@ namespace NoahNPCGen.Pages
             displayLevel = charLevel;
             displayBackG = charBackG;
             displayAlignment = CharAlignment;
+            displayHitDice = (int)LoadAPI("classes/" + displayClass.ToLower())["hit_die"];
             GetStats();
             GetProf();
             GetLevelInfo(charLevel);
-
+            GetEquiptment();
+            GetAttacks();
             
+        }
+
+        private void GetAttacks()
+        {
+            foreach ()
+        }
+
+        private void GetEquiptment()
+        {
+            foreach (dynamic item in LoadAPI("classes/" + displayClass.ToLower())["starting_equipment"])
+            {
+                itemSelect.Add(item["equipment"]["name"].ToString() + " x" + item["quantity"].ToString());
+            }
+            foreach (dynamic choice in LoadAPI("classes/" + displayClass.ToLower())["starting_equipment_options"])
+            {
+                List<dynamic> itemOptions = new List<dynamic>();
+                foreach (dynamic item in choice["from"])
+                    itemOptions.Add(item);
+                for (int i = 0; i < (int)choice["choose"]; i++)
+                {
+                    int ranOpt = rnd.Next(0, itemOptions.Count);
+                    dynamic middleMan = itemOptions.ElementAt(ranOpt); //middle man is random object from classes/*class*/["starting_equipment_options"]*object*[from]
+                    try
+                    {
+                        try
+                        {
+                            itemSelect.Add(middleMan["equipment"]["name"].ToString() + " x" + middleMan["quantity"]);
+                        }
+                        catch
+                        {
+                            List<string> itemType = new List<string>();
+                            try
+                            {
+                                foreach (dynamic weapon in LoadAPI("equipment-categories/" + middleMan["equipment_option"]["from"]["equipment_category"]["index"].ToString())["equipment"])
+                                    itemType.Add(weapon["name"].ToString());
+                                for (int j = 0; j < (int)middleMan["equipment_option"]["choose"]; j++)
+                                {
+                                    int ranItem = rnd.Next(0, itemType.Count);
+                                    itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
+                                }
+                            }
+                            catch
+                            {
+                                Console.WriteLine("TRY: " + middleMan.ToString());
+                                foreach (dynamic item in LoadAPI("equipment-categories/" + middleMan["equipment_category"]["index"].ToString())["equipment"])
+                                    itemType.Add(item["name"].ToString());
+                                int ranItem = rnd.Next(0, itemType.Count);
+                                itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
+                                Console.WriteLine("GOT: " + itemType.ElementAt(ranItem));
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        string ranSet = rnd.Next(0, itemOptions.Count).ToString();
+                        try
+                        {
+                            itemSelect.Add(middleMan[ranSet]["equipment"]["name"].ToString() + " x" + middleMan[ranSet]["quantity"]);
+                        }
+                        catch
+                        {
+                            List<string> itemType = new List<string>();
+                            try
+                            {
+                                foreach (dynamic weapon in LoadAPI("equipment-categories/" + middleMan[ranSet]["equipment_option"]["from"]["equipment_category"]["index"].ToString())["equipment"])
+                                    itemType.Add(weapon["name"].ToString());
+                                for (int j = 0; j < (int)middleMan["equipment_option"]["choose"]; j++)
+                                {
+                                    int ranItem = rnd.Next(0, itemType.Count);
+                                    itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
+                                }
+                            }
+                            catch
+                            {
+                                foreach (dynamic item in LoadAPI("equipment-categories/" + middleMan[ranSet]["equipment_category"]["index"].ToString())["equipment"])
+                                    itemType.Add(item["name"].ToString());
+                                for (int j = 0; j < (int)middleMan["equipment_option"]["choose"]; j++)
+                                {
+                                    int ranItem = rnd.Next(0, itemType.Count);
+                                    itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
+                                }
+                            }
+                        }
+                        itemOptions.RemoveAt(ranOpt);
+                    }
+                }
+            }
+        }
+
+        public string AllItems()
+        {
+            string result = "";
+            foreach (string item in itemSelect)
+                result += item + "\n";
+            return result;
         }
 
         private void GetLevelInfo(int charLevel)
@@ -40,87 +138,115 @@ namespace NoahNPCGen.Pages
             {
                 displayExp = 0;
                 displayProf = 2;
+                displayHP = displayHitDice + displayConMod;
             }
             if (charLevel >= 2)
             {
                 displayExp = 300;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 3)
             {
                 displayExp = 900;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 4)
             {
                 displayExp = 2700;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 5)
             {
                 displayExp = 6500;
                 displayProf = 3;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 6)
             {
                 displayExp = 14000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 7)
             {
                 displayExp = 23000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 8)
             {
                 displayExp = 34000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 9)
             {
                 displayExp = 48000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
                 displayProf = 4;
             }
             if (charLevel >= 10)
             {
                 displayExp = 64000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 11)
             {
                 displayExp = 85000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 12)
             {
                 displayExp = 100000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 13)
             {
                 displayExp = 120000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 14)
             {
                 displayExp = 140000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 15)
             {
                 displayExp = 165000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
                 displayProf = 5;
             }
             if (charLevel >= 16)
             {
                 displayExp = 195000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 17)
             {
                 displayExp = 225000;
                 displayProf = 6;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 18)
             {
                 displayExp = 265000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 19)
             {
                 displayExp = 305000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
             if (charLevel >= 20)
             {
                 displayExp = 355000;
+                displayHP += LevelUpHP(rnd.Next(displayHitDice), displayConMod);
             }
+        }
+
+        public int LevelUpHP(int die, int mod)
+        {
+            if (die + mod > 1)
+                return die + mod;
+            else
+                return 1;
         }
 
         //checks API for a class's saving throws and proficiencies, making the ones that are, "checked" for input box
