@@ -76,15 +76,10 @@
             <div class="col-3 p-3">
                 <p>Select the Character's Alignment:</p>
                 <select id="SelectAlignment" name="SelectAlignment">
-                    <option value="Lawful-Good">Lawful-Good</option>
-                    <option value="Neutral-Good">Neutral-Good</option>
-                    <option value="Chaotic-Good">Chaotic-Good</option>
-                    <option value="Lawful-Neutral">Lawful-Neutral</option>
-                    <option value="True Neutral">True Neutral</option>
-                    <option value="Chaotic Neutral">Chaotic Neutral</option>
-                    <option value="Lawful-Evil">Lawful-Evil</option>
-                    <option value="Neutral-Evil">Neutral-Evil</option>
-                    <option value="Chaotic-Evil">Chaotic-Evil</option>
+                    @foreach (var alignment in Model.LoadAPI("alignments")["results"])
+                    {
+                    <option value="@alignment["name"]">@alignment["name"]</option>
+                    }
                 </select>
             </div>
         </div>

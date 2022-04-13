@@ -389,10 +389,10 @@
         </div>
         <div class="border">
             <div class="row p-0 mx-auto">
-                <p>Hit point maximum:</p><input value="@Model.displayHP"/>
+                <p>Hit point maximum:</p><input value="@Model.displayHP" />
             </div>
             <div class="row p-0 mx-auto mb-0">
-                <input class=" w-100" style="font-size: 3em;" value="@Model.displayHP"/>
+                <input class=" w-100" style="font-size: 3em;" value="@Model.displayHP" />
             </div>
             <div class="row mx-auto">
                 <p class="mb-0"><b>Current hit points</b></p>
@@ -437,27 +437,44 @@
             </div>
         </div>
         <div class="row mx-auto border">
-            <table>
+            <table class="w-100">
                 <tr>
                     <th class="border">Name</th>
                     <th class="border">ATK Bonus</th>
                     <th class="border">Damage/Type</th>
                 </tr>
-                @foreach(string[] attack in Model.attackList)
-            {
-            <tr>
-                <td class="border">@attack[0]</td>
-                <td class="border">@attack[1]</td>
-                <td class="border">@attack[2]</td>
-            </tr>
-            }
+                @foreach (string[] attack in Model.attackList)
+                {
+                    <tr>
+                        <td class="border">@attack[0]</td>
+                        <td class="border">@attack[1]</td>
+                        <td class="border">@attack[2]</td>
+                    </tr>
+                }
             </table>
             <div class="row mx-auto">
                 <p><b>Attacks & Spellcasting</b></p>
             </div>
         </div>
-        <div class="row mx-auto border">
-            <textarea id="AllEquiptment" rows="8" cols="40" style="margin:auto;">@Model.AllItems()</textarea>
+        <div class="mx-auto border">
+            <textarea id="AllEquiptment" rows="8" class=" row mx-auto w-100;">@Model.AllItems()</textarea>
+            <b class="row mx-auto">Equipment</b>
+        </div>
+    </div>
+
+    <div class="col-sm-4 bg-light">
+        <div class="border">
+            <textarea rows="5" class="m-auto w-100" id="persTrait">@Model.persTrait</textarea>
+            <p class="mt-auto">Personality Traits</p>
+            <textarea rows="3" class="m-auto w-100" id="idealTrait">@Model.persIdeal</textarea>
+            <p class="mt-auto">Ideals</p>
+            <textarea rows="3" class="h-auto w-100" id="bondTrait">@Model.persBonds</textarea>
+            <p class="mt-auto">Bonds</p>
+            <textarea rows="3" class="m-auto w-100" id="flawTrait">@Model.persFlaws</textarea>
+            <p class="mt-auto">Flaws</p>
+        </div>
+        <div class="border">
+            <textarea rows="12" class="m-auto w-100" id="features" value="@Model.features"></textarea>
         </div>
     </div>
 </div>
