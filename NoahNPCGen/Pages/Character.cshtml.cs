@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Newtonsoft.Json;
 using System.Net;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace NoahNPCGen.Pages
 {
@@ -14,10 +15,23 @@ namespace NoahNPCGen.Pages
     {
         public static Random rnd = new Random();
         public string displayName = "", displayRace = "", displayClass = "", displaySubClass = "", displayBackG = "", displayAlignment = "";
-        public int displayLevel = -1, displayExp = -1, displayStr = -1, displayDex = -1, displayCon = -1, displayInt = -1, displayWis = -1, displayCha = -1, displayStrMod = -1, displayDexMod = -1, displayConMod = -1, displayIntMod = -1, displayWisMod = -1, displayChaMod = -1, displayProf = -1, displayHitDice = -1, displayHP = -1;
+        public int displayLevel = -1, displayExp = -1, displayStr = -1, displayDex = -1, displayCon = -1, displayInt = -1, displayWis = -1, displayCha = -1, displayStrMod = -1, displayDexMod = -1, displayConMod = -1, displayIntMod = -1, displayWisMod = -1, displayChaMod = -1, displayProf = -1, displayHitDice = -1, displayHP = -1, displayAC = -1, displaySpeed = -1;
         public string strSav, dexSav, conSav, intSav, wisSav, chaSav, acroPro, animPro, arcaPro, athlPro, decePro, histPro, insiPro, intiPro, invePro, mediPro, natuPro, percPro, perfPro, persPro, reliPro, sleiPro, steaPro, survPro;
         public List<string> otherProf = new List<string>();
-        public List<string> itemSelect = new List<string>();
+        public List<string[]> attackList = new List<string[]>();
+        public List<DNDItem> itemSelect = new List<DNDItem>();
+        public class DNDItem
+        {
+            public string Index { get; set; }
+            public string Name { get; set; }
+            public int Quantity { get; set; }
+            public DNDItem(string index, string name, int quantity)
+            {
+                Index = index;
+                Name = name;
+                Quantity = quantity;
+            }
+        }
 
         public void OnGetSingleOrder(string charName, string charRace, string charClass, string charSubClass, int charLevel, string charBackG, string CharAlignment)
         {
@@ -32,106 +46,200 @@ namespace NoahNPCGen.Pages
             GetStats();
             GetProf();
             GetLevelInfo(charLevel);
-            GetEquiptment();
-            GetAttacks();
-            
+            GetEquipment();
+            GetCombat();
+
         }
 
-        private void GetAttacks()
+        //calculates weapon names, attack bonuses, and damage/type, as well as AC
+        private void GetCombat()
         {
-            foreach ()
-        }
-
-        private void GetEquiptment()
-        {
-            foreach (dynamic item in LoadAPI("classes/" + displayClass.ToLower())["starting_equipment"])
+            foreach (DNDItem item in itemSelect)
             {
-                itemSelect.Add(item["equipment"]["name"].ToString() + " x" + item["quantity"].ToString());
-            }
-            foreach (dynamic choice in LoadAPI("classes/" + displayClass.ToLower())["starting_equipment_options"])
-            {
-                List<dynamic> itemOptions = new List<dynamic>();
-                foreach (dynamic item in choice["from"])
-                    itemOptions.Add(item);
-                for (int i = 0; i < (int)choice["choose"]; i++)
+                dynamic middleMan = LoadAPI("equipment/" + item.Index);
+                if ("weapon" == middleMan["equipment_category"]["index"].ToString())
                 {
-                    int ranOpt = rnd.Next(0, itemOptions.Count);
-                    dynamic middleMan = itemOptions.ElementAt(ranOpt); //middle man is random object from classes/*class*/["starting_equipment_options"]*object*[from]
-                    try
+                    int atkBonus = 0;
+                    string atkDam = "", damType = middleMan["damage"]["damage_type"]["name"].ToString();
+                    bool isFinesse = false, isMonk = false;
+                    foreach (string proficiency in otherProf)
                     {
-                        try
+                        if (proficiency == middleMan["weapon_category"].ToString() + " Weapons" || proficiency.ToLower() == middleMan["index"].ToString() + "s")
                         {
-                            itemSelect.Add(middleMan["equipment"]["name"].ToString() + " x" + middleMan["quantity"]);
-                        }
-                        catch
-                        {
-                            List<string> itemType = new List<string>();
-                            try
-                            {
-                                foreach (dynamic weapon in LoadAPI("equipment-categories/" + middleMan["equipment_option"]["from"]["equipment_category"]["index"].ToString())["equipment"])
-                                    itemType.Add(weapon["name"].ToString());
-                                for (int j = 0; j < (int)middleMan["equipment_option"]["choose"]; j++)
-                                {
-                                    int ranItem = rnd.Next(0, itemType.Count);
-                                    itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
-                                }
-                            }
-                            catch
-                            {
-                                Console.WriteLine("TRY: " + middleMan.ToString());
-                                foreach (dynamic item in LoadAPI("equipment-categories/" + middleMan["equipment_category"]["index"].ToString())["equipment"])
-                                    itemType.Add(item["name"].ToString());
-                                int ranItem = rnd.Next(0, itemType.Count);
-                                itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
-                                Console.WriteLine("GOT: " + itemType.ElementAt(ranItem));
-                            }
+                            atkBonus += displayProf;
                         }
                     }
-                    catch
+                    foreach (dynamic property in middleMan["properties"])
                     {
-                        string ranSet = rnd.Next(0, itemOptions.Count).ToString();
+                        if (property["index"] == "finesse")
+                            isFinesse = true;
+                        if (property["index"] == "monk" && displayClass == "Monk")
+                            isMonk = true;
+                    }
+                    if (isMonk)
+                    {
+                        int martArtDie = int.Parse(LoadAPI("classes/" + displayClass.ToLower() + "/levels/" + displayLevel)["class_specific"]["martial_arts"]["dice_value"].ToString());
+                        if (int.Parse(middleMan["damage"]["damage_dice"].ToString().Split('d')[1]) < martArtDie)
+                            atkDam = "1d" + martArtDie;
+                        else
+                            atkDam = middleMan["damage"]["damage_dice"];
+                    }
+                    else
+                        atkDam = middleMan["damage"]["damage_dice"];
+                    if ((isFinesse || displayClass == "Monk") && (displayDexMod > displayStrMod))
+                    {
+                        atkBonus += displayDexMod;
+                        atkDam += " + " + displayDexMod;
+                    }
+                    else
+                    {
+                        atkBonus += displayStrMod;
+                        atkDam += " + " + displayStrMod;
+                    }
+                    string[] atk = { item.Name, atkBonus.ToString(), atkDam + " " + damType};
+                    attackList.Add(atk);
+                }
+
+                if ("armor" == middleMan["equipment_category"]["index"].ToString() && "shield" != middleMan["index"])
+                {
+                    displayAC = middleMan["armor_class"]["base"];
+                    if ((bool)middleMan["armor_class"]["dex_bonus"])
+                    {
+                        int dexMax = 99;
                         try
                         {
-                            itemSelect.Add(middleMan[ranSet]["equipment"]["name"].ToString() + " x" + middleMan[ranSet]["quantity"]);
-                        }
-                        catch
+                            dexMax = (int)middleMan["armor_class"]["max_bonus"];
+                        } catch { }
+                        if (dexMax < displayDexMod)
+                            displayAC += (int)middleMan["armor_class"]["max_bonus"];
+                        else
+                            displayAC += displayDexMod;
+                    }
+                    if (displayStr < (int)middleMan["str_minimum"])
+                    {
+                        displaySpeed -= 10;
+                    }
+                }
+                if (displayAC == -1)
+                {
+                    displayAC = 10 + displayDexMod;
+                }
+            }
+        }
+
+        //generates character equipment from starting-equipment from class
+        private void GetEquipment()
+        {
+            dynamic charaEqu = LoadAPI("classes/" + displayClass.ToLower());
+            foreach (dynamic item in charaEqu["starting_equipment"])
+                itemSelect.Add(new DNDItem(item["equipment"]["index"].ToString(), item["equipment"]["name"].ToString(), (int)item["quantity"]));
+            foreach (dynamic option in charaEqu["starting_equipment_options"]) //cycles through each choice the player makes
+            {
+                for (int i = 0; i < (int)option["choose"]; i++)
+                {
+                    JArray options = (JArray)option["from"];
+                    int rndChoice = rnd.Next(0, options.Count);
+                    bool setOfItems = false, itemCategory = false, optionCategory = false;
+                    try //checks to see if the option is actually several items
+                    {
+                        Console.WriteLine(option["from"][rndChoice]["0"]);
+                        setOfItems = true;
+                    } catch { }
+                    if (!setOfItems)
+                    {
+                        try //checks to see if item in option is an option of a category such as "simple weapon" or "martial weapon"
                         {
-                            List<string> itemType = new List<string>();
-                            try
+                            Console.WriteLine(option["from"][rndChoice]["equipment_option"]);
+                            itemCategory = true;
+                        } catch { }
+                        if (!itemCategory)
+                        {
+                            try //checks to see if option itself is of a category
                             {
-                                foreach (dynamic weapon in LoadAPI("equipment-categories/" + middleMan[ranSet]["equipment_option"]["from"]["equipment_category"]["index"].ToString())["equipment"])
-                                    itemType.Add(weapon["name"].ToString());
-                                for (int j = 0; j < (int)middleMan["equipment_option"]["choose"]; j++)
-                                {
-                                    int ranItem = rnd.Next(0, itemType.Count);
-                                    itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
-                                }
+                                Console.WriteLine(option["from"][rndChoice]["equipment_category"]);
+                                optionCategory = true;
+                            } catch { }
+                            if (!optionCategory)
+                            {
+                                string index = option["from"][rndChoice]["equipment"]["index"].ToString();
+                                string name = option["from"][rndChoice]["equipment"]["name"].ToString();
+                                int quantity = (int)option["from"][rndChoice]["quantity"];
+                                itemSelect.Add(new DNDItem(index, name, quantity));
                             }
-                            catch
+                            else
                             {
-                                foreach (dynamic item in LoadAPI("equipment-categories/" + middleMan[ranSet]["equipment_category"]["index"].ToString())["equipment"])
-                                    itemType.Add(item["name"].ToString());
-                                for (int j = 0; j < (int)middleMan["equipment_option"]["choose"]; j++)
+                                List<dynamic> itemType = new List<dynamic>();
+                                foreach (dynamic item in LoadAPI("equipment-categories/" + option["from"][rndChoice]["equipment_category"]["index"].ToString())["equipment"])
+                                    itemType.Add(item);
+                                for (int j = 0; j < (int)option["choose"]; j++)
                                 {
                                     int ranItem = rnd.Next(0, itemType.Count);
-                                    itemSelect.Add(itemType.ElementAt(ranItem) + " x1");
+                                    itemSelect.Add(new DNDItem(itemType.ElementAt(ranItem)["index"].ToString(), itemType.ElementAt(ranItem)["name"].ToString(), 1));
                                 }
                             }
                         }
-                        itemOptions.RemoveAt(ranOpt);
+                        else
+                        {
+                            List<dynamic> itemType = new List<dynamic>();
+                            foreach (dynamic item in LoadAPI("equipment-categories/" + option["from"][rndChoice]["equipment_option"]["from"]["equipment_category"]["index"].ToString())["equipment"])
+                                itemType.Add(item);
+                            for (int j = 0; j < (int)option["from"][rndChoice]["equipment_option"]["choose"]; j++)
+                            {
+                                int ranItem = rnd.Next(0, itemType.Count);
+                                itemSelect.Add(new DNDItem(itemType.ElementAt(ranItem)["index"].ToString(), itemType.ElementAt(ranItem)["name"].ToString(), 1));
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Console.WriteLine(option["from"][rndChoice]["equipment_option"]);
+                            itemCategory = true;
+                        } catch { }
+                        if (!itemCategory)
+                        {
+                            int j = 0;
+                            while (option["from"][rndChoice][j.ToString()] != null)
+                            {
+                                //json can't cycle through strings, so do a regular for loop, sonverting the ints to strings
+                                string index = option["from"][rndChoice][j.ToString()]["equipment"]["index"].ToString();
+                                string name = option["from"][rndChoice][j.ToString()]["equipment"]["name"].ToString();
+                                int quantity = (int)option["from"][rndChoice][j.ToString()]["quantity"];
+                                itemSelect.Add(new DNDItem(index, name, quantity));
+                                j++;
+                            }
+                        }
+                        else
+                        {
+                            List<dynamic> itemType = new List<dynamic>();
+                            foreach (dynamic item in LoadAPI("equipment-categories/" + option["from"]["equipment_option"]["equipment_category"]["index"].ToString())["equipment"])
+                                itemType.Add(item);
+                            for (int j = 0; j < (int)option["from"]["equipment_option"]["choose"]; j++)
+                            {
+                                int ranItem = rnd.Next(0, itemType.Count);
+                                itemSelect.Add(new DNDItem(itemType.ElementAt(ranItem)["index"].ToString(), itemType.ElementAt(ranItem)["name"].ToString(), 1));
+                            }
+                        }
                     }
                 }
             }
         }
 
+        //prints items into equipment box
         public string AllItems()
         {
             string result = "";
-            foreach (string item in itemSelect)
-                result += item + "\n";
+            foreach (DNDItem item in itemSelect)
+            {
+                result += item.Name;
+                result += " x" + item.Quantity + "\n";
+            }
             return result;
         }
 
+        //levels up the character
         private void GetLevelInfo(int charLevel)
         {
             if (charLevel >= 1)
@@ -274,7 +382,7 @@ namespace NoahNPCGen.Pages
                     correctProf = profPoss;
             }
 
-            //adds each proficiency choice to list
+            //adds each proficiency choice from class to list
             foreach (var profChoice in correctProf["from"])
                 profSele.Add(profChoice["index"].ToString());
 

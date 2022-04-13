@@ -359,7 +359,7 @@
         <div class="row bg-light">
             <div class="border p-3" style="margin:auto">
                 <input class="form-control p-1 modifier" maxlength="2" size="2" value="@Model.ProfBonus(Model.displayWisMod, Model.percPro)" />
-                <label class="modDesc">Passive Wisdom</label>
+                <label class="modDesc">Passive Wisdom (Perception)</label>
             </div>
             <textarea id="OtherProf" rows="4" cols="40" style="margin:auto;">@Model.DisplayOtherProf()</textarea>
         </div>
@@ -370,7 +370,7 @@
         <div class="row">
             <div class="col-sm-4">
                 <div class="border" id="ACSco">
-                    <input class="form-control ability" id="ACSco" value="@Model.displayDexMod" />
+                    <input class="form-control ability" id="ACSco" value="@Model.displayAC" />
                     <label for="ACSco">Armor Class</label>
                 </div>
             </div>
@@ -382,7 +382,7 @@
             </div>
             <div class="col-sm-4">
                 <div class="border" id="SpeedSco">
-                    <input class="form-control ability" id="ACSco" value="30ft" />
+                    <input class="form-control ability" id="ACSco" value="@Model.displaySpeed ft" />
                     <label for="ACSco">Speed</label>
                 </div>
             </div>
@@ -439,11 +439,18 @@
         <div class="row mx-auto border">
             <table>
                 <tr>
-                    <th>Name</th>
-                    <th>ATK Bonus</th>
-                    <th>Damage/Type</th>
+                    <th class="border">Name</th>
+                    <th class="border">ATK Bonus</th>
+                    <th class="border">Damage/Type</th>
                 </tr>
-
+                @foreach(string[] attack in Model.attackList)
+            {
+            <tr>
+                <td class="border">@attack[0]</td>
+                <td class="border">@attack[1]</td>
+                <td class="border">@attack[2]</td>
+            </tr>
+            }
             </table>
             <div class="row mx-auto">
                 <p><b>Attacks & Spellcasting</b></p>
